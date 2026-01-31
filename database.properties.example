@@ -1,0 +1,4 @@
+user=your_user
+password=your_password
+dburl=jdbc:postgresql://localhost:5432/your_database
+useSSL=false
