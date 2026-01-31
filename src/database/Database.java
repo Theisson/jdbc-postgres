@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 public class Database {
@@ -28,6 +29,17 @@ public class Database {
         if(conn != null) {
             try {
                 conn.close();
+            }
+            catch(SQLException e) {
+                throw new DatabaseException(e.getMessage());
+            }
+        }
+    }
+
+    public static void closeStatement(Statement st) {
+        if(st != null) {
+            try {
+                st.close();
             }
             catch(SQLException e) {
                 throw new DatabaseException(e.getMessage());

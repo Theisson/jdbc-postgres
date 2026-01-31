@@ -1,7 +1,9 @@
 package app;
 
+import database.SchemaManager;
+
 public class Program {
     public static void main(String[] args) {
-        System.out.println("Hello, World!");
+        SchemaManager.createTables();
     }
 }
