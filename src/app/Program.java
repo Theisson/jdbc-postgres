@@ -4,6 +4,12 @@ import database.SchemaManager;
 
 public class Program {
     public static void main(String[] args) {
-        SchemaManager.createTables();
+        try {
+            SchemaManager.createTables();
+            SchemaManager.seedData();
+        }
+        finally {
+            database.Database.closeConnection();
+        }
     }
 }
