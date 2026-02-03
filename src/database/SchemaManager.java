@@ -19,7 +19,7 @@ public class SchemaManager {
                     latitude DOUBLE PRECISION,
                     longitude DOUBLE PRECISION,
                     moment TIMESTAMP WITHOUT TIME ZONE,
-                    status SMALLINT
+                    status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
                 );
                 
                 CREATE TABLE IF NOT EXISTS tb_products (
