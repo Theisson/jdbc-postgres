@@ -9,8 +9,6 @@ public class Product {
     private String description;
     private String imageUrl;
 
-    public Product() {}
-
     public Product(Long id, String name, Price price, String description, String imageUrl) {
         this.id = id;
         this.name = name;
@@ -40,6 +38,6 @@ public class Product {
     }
 
     public String toString() {
-        return id + " - " + name + " - " + price.getValue();
+        return name + " - R$" + price.getValue();
     }
 }

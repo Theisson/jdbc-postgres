@@ -12,21 +12,16 @@ public class Order {
     private Instant moment;
     private List<Product> products = new ArrayList<>();
     private OrderStatus status;
-    private BigDecimal total;
 
-    public Order() {}
-
-    public Order(Long id, Double latitude, Double longitude, Instant moment, List<Product> products,OrderStatus status) {
+    public Order(Long id, Double latitude, Double longitude, Instant moment, OrderStatus status) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
         this.moment = moment;
-        this.products = products != null ? products : new ArrayList<>();
         this.status = status;
-        this.total = calculateTotal();
     }
 
-    private BigDecimal calculateTotal() {
+   private BigDecimal calculateTotal() {
         BigDecimal sum = BigDecimal.ZERO;
 
         for(Product p : products) {
@@ -35,7 +30,7 @@ public class Order {
 
         return sum;
     }
-
+    
     public Long getId() {
         return id;
     }
@@ -60,7 +55,8 @@ public class Order {
         return status;
     }
 
-    public BigDecimal getTotal() {
-        return total;
+    public String toString() {
+        return "Pedido #" + id + " | " + moment + " | " + status.getDisplayName() + 
+               " | Produtos: " + products.size() + " | Total: R$" + calculateTotal();
     }
 }

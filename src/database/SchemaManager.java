@@ -27,7 +27,7 @@ public class SchemaManager {
                     name VARCHAR(255) UNIQUE NOT NULL,
                     price DECIMAL(6, 2),
                     description TEXT,
-                    img_url VARCHAR(255)
+                    image_url VARCHAR(255)
                 );
 
                 CREATE TABLE IF NOT EXISTS tb_order_products (
@@ -56,10 +56,19 @@ public class SchemaManager {
 
         try {
             conn = Database.getConnection();
+            conn.setAutoCommit(false);
             st = conn.createStatement();
 
-            String sql = """
-                INSERT INTO tb_products (name, price, description, img_url) VALUES
+            var rs = st.executeQuery("SELECT COUNT(*) FROM tb_products");
+            rs.next();
+            if(rs.getInt(1) > 0) {
+                System.out.println("Dados já existem. Pulando inserção.");
+                conn.rollback();
+                return;
+            }
+
+            String sqlProducts = """
+                INSERT INTO tb_products (name, price, description, image_url) VALUES
                     ('Pizza Calabresa', 42.50, 'Deliciosa pizza de calabresa com cebola e azeitonas.', 'https://example.com/pizza_calabresa.jpg'),
                     ('Pizza Margherita', 38.00, 'Clássica pizza Margherita com molho de tomate, mussarela e manjericão.', 'https://example.com/pizza_margherita.jpg'),
                     ('Pizza Portuguesa', 45.00, 'Pizza portuguesa com presunto, ovos, cebola e azeitonas.', 'https://example.com/pizza_portuguesa.jpg'),
@@ -70,14 +79,58 @@ public class SchemaManager {
                     ('Água Mineral 500ml', 3.00, 'Água mineral sem gás em garrafa de 500ml.', 'https://example.com/agua_mineral.jpg')
                 ON CONFLICT (name) DO NOTHING;
             """;
+            st.executeUpdate(sqlProducts);
 
-            st.executeUpdate(sql);
+            String sqlOrders = """
+                INSERT INTO tb_orders (latitude, longitude, moment, status) VALUES
+                    (-23.5505, -46.6333, '2026-01-15 14:30:00', 'DELIVERED'),
+                    (-23.5489, -46.6388, '2026-01-16 18:45:00', 'DELIVERED'),
+                    (-23.5520, -46.6350, '2026-01-17 12:15:00', 'CANCELED'),
+                    (-23.5530, -46.6310, '2026-01-18 19:20:00', 'DELIVERED'),
+                    (-23.5495, -46.6375, '2026-01-19 20:10:00', 'PROCESSING'),
+                    (-23.5510, -46.6340, '2026-01-20 13:00:00', 'SHIPPED'),
+                    (-23.5515, -46.6355, '2026-02-03 11:30:00', 'PENDING'),
+                    (-23.5500, -46.6320, '2026-02-03 15:45:00', 'PENDING');
+            """;    
+            st.executeUpdate(sqlOrders);
+
+            String sqlOrderProducts = """
+                INSERT INTO tb_order_products (order_id, product_id) VALUES
+                    (1, 1), (1, 6),
+                    (2, 2), (2, 3), (2, 8),
+                    (3, 4), (3, 7),
+                    (4, 5), (4, 6),
+                    (5, 1), (5, 6),
+                    (6, 2), (6, 1), (6, 8),
+                    (7, 3), (7, 7),
+                    (8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6);
+            """;
+            st.executeUpdate(sqlOrderProducts);
+
+            conn.commit();
             System.out.println("Dados iniciais inseridos com sucesso!");
         }
         catch(SQLException e) {
+            try {
+                if(conn != null) {
+                    conn.rollback();
+                    System.out.println("Rollback realizado!");
+                }
+            }
+            catch(SQLException ex) {
+                throw new DatabaseException("Erro ao fazer rollback: " + ex.getMessage());
+            }
             throw new DatabaseException("Erro ao inserir dados iniciais: " + e.getMessage());
         }
         finally {
+            try {
+                if(conn != null) {
+                    conn.setAutoCommit(true);
+                }
+            }
+            catch(SQLException e) {
+                e.printStackTrace();
+            }
             Database.closeStatement(st);
         }
     }
