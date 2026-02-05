@@ -5,6 +5,7 @@ import models.Order;
 import models.OrderStatus;
 import models.Price;
 import models.Product;
+import services.DiscountService;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +13,6 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-
 import database.Database;
 
 public class Program {
@@ -49,12 +49,34 @@ public class Program {
                 orderMap.get(orderId).getProducts().add(productMap.get(productId));
             }
 
-            for(Long orderId : orderMap.keySet()) {
-                System.out.println(orderMap.get(orderId));
-                for(Product p : orderMap.get(orderId).getProducts()) {
-                    System.out.println("  " + p);
+            // EXIBINDO PEDIDOS ANTES DO DESCONTO
+            System.out.println("=== PEDIDOS ANTES DO DESCONTO ===\n");
+            for(Order order : orderMap.values()) {
+                System.out.println(order);
+                System.out.println("Pode desconto? " + (order.canApplyDiscount() ? "Sim" : "Não"));
+
+                for(Product product : order.getProducts()) {
+                    System.out.println("  " + product);
+                }
+                System.out.println();
+            }
+
+            // APLICANDO DESCONTOS
+            System.out.println("=== APLICANDO DESCONTOS ===");
+            DiscountService discountService = new DiscountService();
+
+            for(Order order : orderMap.values()) {
+                if(order.canApplyDiscount()) {
+                    try {
+                        discountService.apply(order);
+                    }
+                    catch(IllegalStateException | IllegalArgumentException e) {
+                        System.out.println("Não foi possível aplicar desconto: " + e.getMessage());
+                    }
                 }
             }
+
+            Database.closeStatement(st);
         }
         finally {
             Database.closeConnection();
