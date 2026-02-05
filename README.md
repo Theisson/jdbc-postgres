@@ -6,7 +6,7 @@ Projeto Java para demonstração de conexão com banco de dados PostgreSQL usand
 
 - ☕ Java JDK 25
 - 🐘 PostgreSQL instalado e em execução
-- 📦 Maven 3.6 ou superior
+- 📦 Maven 4.0 ou superior
 
 ## ⚙️ Configuração
 
